@@ -1,0 +1,428 @@
+﻿auths:
+  public:
+    version: 2
+    community: public
+
+  hp_auth:
+    version: 2
+    community: COMMUNITY_DO_SEU_SWITCH
+
+modules:
+  # ======================
+  # Fortigate - MIBs baseadas em Fortinet, compatíveis com modelos FortiGate
+  # ======================
+  fortigate:
+    timeout: 20s
+    retries: 2
+    walk:
+      # ===== SISTEMA =====
+      - 1.3.6.1.2.1.1.5 # sysName
+      - 1.3.6.1.2.1.1.3 # sysUpTime
+
+      # ===== CPU / MEMÓRIA / SESSÕES =====
+      - 1.3.6.1.4.1.12356.101.4.1.3 # CPU
+      - 1.3.6.1.4.1.12356.101.4.1.4 # Memória
+      - 1.3.6.1.4.1.12356.101.4.1.8 # Sessões
+
+      # ===== INTERFACES =====
+      - 1.3.6.1.2.1.2.2.1.2 # ifDescr
+      - 1.3.6.1.2.1.2.2.1.5 # ifSpeed
+      - 1.3.6.1.2.1.2.2.1.8 # ifOperStatus
+      - 1.3.6.1.2.1.31.1.1.1.6 # ifHCInOctets
+      - 1.3.6.1.2.1.31.1.1.1.10 # ifHCOutOctets
+
+    metrics:
+      # ======================
+      # CPU
+      # ======================
+      - name: fgSysCpuUsage
+        oid: 1.3.6.1.4.1.12356.101.4.1.3
+        type: gauge
+        help: Current CPU usage (percentage)
+
+      # ======================
+      # Memória
+      # ======================
+      - name: fgSysMemUsage
+        oid: 1.3.6.1.4.1.12356.101.4.1.4
+        type: gauge
+        help: Current memory usage (percentage)
+
+      # ======================
+      # Sessões ativas
+      # ======================
+      - name: fgSysSesCount
+        oid: 1.3.6.1.4.1.12356.101.4.1.8
+        type: gauge
+        help: Number of active sessions
+
+      # ======================
+      # Info do sistema
+      # ======================
+      - name: sysName
+        oid: 1.3.6.1.2.1.1.5
+        type: DisplayString
+        help: System name
+
+      - name: sysUpTime
+        oid: 1.3.6.1.2.1.1.3
+        type: gauge
+        help: System uptime in hundredths of seconds
+
+      # ======================
+      # Interfaces - Nome
+      # ======================
+      - name: ifDescr
+        oid: 1.3.6.1.2.1.2.2.1.2
+        type: DisplayString
+        help: Interface description/name
+        indexes:
+          - labelname: ifIndex
+            type: gauge
+
+      # ======================
+      # Interfaces - Velocidade
+      # ======================
+      - name: ifSpeed
+        oid: 1.3.6.1.2.1.2.2.1.5
+        type: gauge
+        help: Interface speed in bits per second
+        indexes:
+          - labelname: ifIndex
+            type: gauge
+
+      # ======================
+      # Interfaces - Status
+      # ======================
+      - name: ifOperStatus
+        oid: 1.3.6.1.2.1.2.2.1.8
+        type: gauge
+        help: Interface operational status (1=up, 2=down)
+        indexes:
+          - labelname: ifIndex
+            type: gauge
+
+      # ======================
+      # Interfaces - Tráfego Entrada
+      # ======================
+      - name: ifHCInOctets
+        oid: 1.3.6.1.2.1.31.1.1.1.6
+        type: counter
+        help: Total bytes received on interface
+        indexes:
+          - labelname: ifIndex
+            type: gauge
+
+      # ======================
+      # Interfaces - Tráfego Saída
+      # ======================
+      - name: ifHCOutOctets
+        oid: 1.3.6.1.2.1.31.1.1.1.10
+        type: counter
+        help: Total bytes sent on interface
+        indexes:
+          - labelname: ifIndex
+            type: gauge
+
+  # ======================
+  # Switch HP - MIBs baseadas em H3C, compatíveis com modelos Comware
+  # ======================
+  hp_switch:
+    timeout: 25s
+    retries: 2
+    max_repetitions: 25
+    walk:
+      # ===== System =====
+      - 1.3.6.1.2.1.1.1
+      - 1.3.6.1.2.1.1.3
+      - 1.3.6.1.2.1.1.5
+
+      # ===== Interfaces =====
+      - 1.3.6.1.2.1.2.2.1.1
+      - 1.3.6.1.2.1.2.2.1.2
+      - 1.3.6.1.2.1.2.2.1.5
+      - 1.3.6.1.2.1.2.2.1.7
+      - 1.3.6.1.2.1.2.2.1.8
+      - 1.3.6.1.2.1.31.1.1.1.1
+      - 1.3.6.1.2.1.31.1.1.1.6
+      - 1.3.6.1.2.1.31.1.1.1.10
+
+      # ===== Erros / Descartes =====
+      - 1.3.6.1.2.1.2.2.1.13
+      - 1.3.6.1.2.1.2.2.1.14
+      - 1.3.6.1.2.1.2.2.1.19
+      - 1.3.6.1.2.1.2.2.1.20
+
+      # ===== CPU / Memory HPE Comware =====
+      - 1.3.6.1.4.1.25506.2.6.1.1.1.1.6
+      - 1.3.6.1.4.1.25506.2.6.1.1.1.1.8
+
+      # ===== Temperatura =====
+      - 1.3.6.1.4.1.25506.2.6.1.1.1.1.12
+
+      # ===== Fan Speed =====
+      - 1.3.6.1.4.1.25506.2.6.1.1.1.1.20
+
+      # ===== PSU Status =====
+      - 1.3.6.1.4.1.25506.2.6.1.1.1.1.19
+
+      # ===== PoE =====
+      - 1.3.6.1.2.1.105.1.3.1.1.2
+      - 1.3.6.1.2.1.105.1.3.1.1.4
+      - 1.3.6.1.2.1.105.1.1.1.6
+      - 1.3.6.1.2.1.105.1.1.1.11
+
+    metrics:
+      # ==========================================
+      #  SYSTEM
+      # ==========================================
+      - name: sysDescr
+        oid: 1.3.6.1.2.1.1.1
+        type: DisplayString
+        help: A textual description of the entity
+
+      - name: sysUpTime
+        oid: 1.3.6.1.2.1.1.3
+        type: gauge
+        help: System uptime in hundredths of a second
+
+      - name: sysName
+        oid: 1.3.6.1.2.1.1.5
+        type: DisplayString
+        help: An administratively-assigned name for this managed node
+
+      # ==========================================
+      #  CPU
+      # ==========================================
+      - name: hh3cEntityExtCpuUsage
+        oid: 1.3.6.1.4.1.25506.2.6.1.1.1.1.6
+        type: gauge
+        help: The CPU usage for this entity (percentage)
+        indexes:
+          - labelname: hh3cEntityExtPhysicalIndex
+            type: gauge
+
+      # ==========================================
+      #  MEMORY
+      # ==========================================
+      - name: hh3cEntityExtMemUsage
+        oid: 1.3.6.1.4.1.25506.2.6.1.1.1.1.8
+        type: gauge
+        help: The memory usage for this entity (percentage)
+        indexes:
+          - labelname: hh3cEntityExtPhysicalIndex
+            type: gauge
+
+      # ==========================================
+      #  TEMPERATURE
+      # ==========================================
+      - name: hh3cEntityExtTemperature
+        oid: 1.3.6.1.4.1.25506.2.6.1.1.1.1.12
+        type: gauge
+        help: The temperature for this entity (Celsius)
+        indexes:
+          - labelname: hh3cEntityExtPhysicalIndex
+            type: gauge
+
+      # ==========================================
+      #  FAN SPEED
+      # ==========================================
+      - name: hh3cEntityExtFanSpeed
+        oid: 1.3.6.1.4.1.25506.2.6.1.1.1.1.20
+        type: gauge
+        help: The fan speed for this entity (percentage)
+        indexes:
+          - labelname: hh3cEntityExtPhysicalIndex
+            type: gauge
+
+      # ==========================================
+      #  PSU STATUS
+      # ==========================================
+      - name: hh3cEntityExtErrorStatus
+        oid: 1.3.6.1.4.1.25506.2.6.1.1.1.1.19
+        type: gauge
+        help: Entity error status (2=normal)
+        indexes:
+          - labelname: hh3cEntityExtPhysicalIndex
+            type: gauge
+
+      # ==========================================
+      #  PoE - POWER SOURCE
+      # ==========================================
+      - name: pethMainPseOperPower
+        oid: 1.3.6.1.2.1.105.1.3.1.1.2
+        type: gauge
+        help: Total PoE power available (Watts)
+        indexes:
+          - labelname: pethMainPseGroupIndex
+            type: gauge
+
+      - name: pethMainPseConsumptionPower
+        oid: 1.3.6.1.2.1.105.1.3.1.1.4
+        type: gauge
+        help: Total PoE power consumed (Watts)
+        indexes:
+          - labelname: pethMainPseGroupIndex
+            type: gauge
+
+      # ==========================================
+      #  PoE - PER PORT
+      # ==========================================
+      - name: pethPsePortDetectionStatus
+        oid: 1.3.6.1.2.1.105.1.1.1.6
+        type: gauge
+        help: "PoE port detection status (1=disabled, 2=searching, 3=deliveringPower, 4=fault)"
+        indexes:
+          - labelname: pethPsePortGroupIndex
+            type: gauge
+          - labelname: pethPsePortIndex
+            type: gauge
+
+      - name: pethPsePortPowerConsumption
+        oid: 1.3.6.1.2.1.105.1.1.1.11
+        type: gauge
+        help: Power consumption on this port (milliwatts)
+        indexes:
+          - labelname: pethPsePortGroupIndex
+            type: gauge
+          - labelname: pethPsePortIndex
+            type: gauge
+
+      # ==========================================
+      #  INTERFACES
+      # ==========================================
+      - name: ifName
+        oid: 1.3.6.1.2.1.31.1.1.1.1
+        type: DisplayString
+        help: The textual name of the interface
+        indexes:
+          - labelname: ifIndex
+            type: gauge
+
+      - name: ifDescr
+        oid: 1.3.6.1.2.1.2.2.1.2
+        type: DisplayString
+        help: A textual string containing information about the interface
+        indexes:
+          - labelname: ifIndex
+            type: gauge
+
+      - name: ifSpeed
+        oid: 1.3.6.1.2.1.2.2.1.5
+        type: gauge
+        help: Interface speed in bits per second
+        indexes:
+          - labelname: ifIndex
+            type: gauge
+        lookups:
+          - labels: [ifIndex]
+            labelname: ifDescr
+            oid: 1.3.6.1.2.1.2.2.1.2
+            type: DisplayString
+
+      - name: ifAdminStatus
+        oid: 1.3.6.1.2.1.2.2.1.7
+        type: gauge
+        help: "The desired state of the interface (1=up, 2=down, 3=testing)"
+        indexes:
+          - labelname: ifIndex
+            type: gauge
+        lookups:
+          - labels: [ifIndex]
+            labelname: ifDescr
+            oid: 1.3.6.1.2.1.2.2.1.2
+            type: DisplayString
+
+      - name: ifOperStatus
+        oid: 1.3.6.1.2.1.2.2.1.8
+        type: gauge
+        help: "The current operational state of the interface (1=up, 2=down)"
+        indexes:
+          - labelname: ifIndex
+            type: gauge
+        lookups:
+          - labels: [ifIndex]
+            labelname: ifDescr
+            oid: 1.3.6.1.2.1.2.2.1.2
+            type: DisplayString
+
+      - name: ifHCInOctets
+        oid: 1.3.6.1.2.1.31.1.1.1.6
+        type: counter
+        help: The total number of octets received on the interface
+        indexes:
+          - labelname: ifIndex
+            type: gauge
+        lookups:
+          - labels: [ifIndex]
+            labelname: ifDescr
+            oid: 1.3.6.1.2.1.2.2.1.2
+            type: DisplayString
+
+      - name: ifHCOutOctets
+        oid: 1.3.6.1.2.1.31.1.1.1.10
+        type: counter
+        help: The total number of octets transmitted out of the interface
+        indexes:
+          - labelname: ifIndex
+            type: gauge
+        lookups:
+          - labels: [ifIndex]
+            labelname: ifDescr
+            oid: 1.3.6.1.2.1.2.2.1.2
+            type: DisplayString
+
+      # ==========================================
+      #  ERROS / DESCARTES
+      # ==========================================
+      - name: ifInDiscards
+        oid: 1.3.6.1.2.1.2.2.1.13
+        type: counter
+        help: The number of inbound packets discarded
+        indexes:
+          - labelname: ifIndex
+            type: gauge
+        lookups:
+          - labels: [ifIndex]
+            labelname: ifDescr
+            oid: 1.3.6.1.2.1.2.2.1.2
+            type: DisplayString
+
+      - name: ifInErrors
+        oid: 1.3.6.1.2.1.2.2.1.14
+        type: counter
+        help: The number of inbound packets with errors
+        indexes:
+          - labelname: ifIndex
+            type: gauge
+        lookups:
+          - labels: [ifIndex]
+            labelname: ifDescr
+            oid: 1.3.6.1.2.1.2.2.1.2
+            type: DisplayString
+
+      - name: ifOutDiscards
+        oid: 1.3.6.1.2.1.2.2.1.19
+        type: counter
+        help: The number of outbound packets discarded
+        indexes:
+          - labelname: ifIndex
+            type: gauge
+        lookups:
+          - labels: [ifIndex]
+            labelname: ifDescr
+            oid: 1.3.6.1.2.1.2.2.1.2
+            type: DisplayString
+
+      - name: ifOutErrors
+        oid: 1.3.6.1.2.1.2.2.1.20
+        type: counter
+        help: The number of outbound packets with errors
+        indexes:
+          - labelname: ifIndex
+            type: gauge
+        lookups:
+          - labels: [ifIndex]
+            labelname: ifDescr
+            oid: 1.3.6.1.2.1.2.2.1.2
+            type: DisplayString

@@ -1,0 +1,124 @@
+﻿scrape_configs:
+  - job_name: prometheus
+    scrape_interval: 30s
+    static_configs:
+      - targets:
+          - "IP_SERVIDOR_01:9182"
+          - "IP_SERVIDOR_02:9182"
+          - "IP_SERVIDOR_03:9182"
+          - "IP_SERVIDOR_04:9182"
+          - "IP_SERVIDOR_05:9182"
+    relabel_configs:
+      - source_labels: [__address__]
+        regex: "IP_SERVIDOR_01:9182"
+        target_label: instance
+        replacement: servidor-01
+
+      - source_labels: [__address__]
+        regex: "IP_SERVIDOR_02:9182"
+        target_label: instance
+        replacement: servidor-02
+
+      - source_labels: [__address__]
+        regex: "IP_SERVIDOR_03:9182"
+        target_label: instance
+        replacement: servidor-03
+
+      - source_labels: [__address__]
+        regex: "IP_SERVIDOR_04:9182"
+        target_label: instance
+        replacement: servidor-04
+
+      - source_labels: [__address__]
+        regex: "IP_SERVIDOR_05:9182"
+        target_label: instance
+        replacement: servidor-05
+
+  - job_name: fortigate
+    scrape_interval: 3m
+    scrape_timeout: 3m
+    metrics_path: /snmp
+    params:
+      module: [fortigate]
+      auth: [public]
+    static_configs:
+      - targets:
+          - IP_FORTIGATE
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+
+      - source_labels: [__param_target]
+        target_label: instance
+
+      - target_label: __address__
+        replacement: snmp-exporter:9116
+
+  - job_name: blackbox-gateways
+    scrape_interval: 15s
+    metrics_path: /probe
+    params:
+      module: [icmp]
+    static_configs:
+      - targets: [IP_FORTIGATE]
+        labels:
+          rede: rede-10
+
+      - targets: [IP_GATEWAY_REDE_02]
+        labels:
+          rede: rede-11
+
+      - targets: [IP_GATEWAY_REDE_03]
+        labels:
+          rede: rede-12
+
+      - targets: [IP_GATEWAY_REDE_04]
+        labels:
+          rede: rede-13
+
+      - targets: [IP_GATEWAY_REDE_05]
+        labels:
+          rede: rede-14
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+
+      - source_labels: [__param_target]
+        target_label: instance
+
+      - target_label: __address__
+        replacement: blackbox:9115
+
+  - job_name: postgres
+    static_configs:
+      - targets:
+          - postgres_exporter:9187
+
+  - job_name: snmp-hp-switch
+    scrape_interval: 60s
+    scrape_timeout: 30s
+    metrics_path: /snmp
+    params:
+      module: [hp_switch]
+      auth: [hp_auth]
+
+    static_configs:
+      - targets:
+          - IP_SWITCH_01
+        labels:
+          instance: "Switch 01"
+
+      - targets:
+          - IP_SWITCH_02
+        labels:
+          instance: "Switch 02"
+
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+
+      - source_labels: [instance]
+        target_label: instance
+
+      - target_label: __address__
+        replacement: snmp-exporter:9116
