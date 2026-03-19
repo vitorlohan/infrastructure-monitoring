@@ -1,4 +1,4 @@
-﻿# Infrastructure Monitoring Stack
+﻿# Infrastructure Monitoring
 
 > Template open-source para montar um sistema completo de monitoramento de infraestrutura usando ferramentas gratuitas com Docker.
 > Baseado em um projeto real implantado em ambiente corporativo.
