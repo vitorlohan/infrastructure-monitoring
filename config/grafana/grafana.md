@@ -1,4 +1,4 @@
-﻿# 📊 Configuração do Grafana
+﻿# Configuração do Grafana
 
 ## 📌 Visão Geral
 
